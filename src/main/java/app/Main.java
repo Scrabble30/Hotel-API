@@ -1,9 +1,13 @@
 package app;
 
 import app.config.AppConfig;
+import app.config.HibernateConfig;
+import jakarta.persistence.EntityManagerFactory;
 
 public class Main {
     public static void main(String[] args) {
-        AppConfig.startServer(7070);
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory("hotel_db");
+
+        AppConfig.startServer(7070, emf);
     }
 }
