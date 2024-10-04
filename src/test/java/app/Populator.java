@@ -22,11 +22,11 @@ public class Populator {
     public List<UserDTO> populateUsers() {
         List<User> users = List.of(
                 new User(
-                        "User",
+                        "User1",
                         "user123"
                 ),
                 new User(
-                        "Admin",
+                        "Admin1",
                         "admin123"
                 )
         );

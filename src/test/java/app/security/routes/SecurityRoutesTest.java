@@ -3,16 +3,15 @@ package app.security.routes;
 import app.Populator;
 import app.config.AppConfig;
 import app.config.HibernateConfig;
-import app.security.entities.User;
 import dk.bugelhartmann.UserDTO;
 import io.javalin.Javalin;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.*;
 
 class SecurityRoutesTest {
 
@@ -59,18 +58,29 @@ class SecurityRoutesTest {
 
     @Test
     void login() {
-        UserDTO userDTO = new UserDTO("User", "user123");
-
-        try (EntityManager em = emf.createEntityManager()) {
-            User user = em.find(User.class, userDTO.getUsername());
-            System.out.println(user);
-        }
+        UserDTO userDTO = new UserDTO("User1", "user123");
 
         given()
                 .body(userDTO)
                 .when()
                 .post(BASE_URL + "/auth/login")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("username", equalTo(userDTO.getUsername()))
+                .body("token", is(notNullValue()));
+    }
+
+    @Test
+    void register() {
+        UserDTO userDTO = new UserDTO("User2", "user123");
+
+        given()
+                .body(userDTO)
+                .when()
+                .post(BASE_URL + "/auth/register")
+                .then()
+                .statusCode(201)
+                .body("username", equalTo(userDTO.getUsername()))
+                .body("token", is(notNullValue()));
     }
 }
