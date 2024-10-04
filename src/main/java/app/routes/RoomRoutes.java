@@ -3,6 +3,7 @@ package app.routes;
 import app.controllers.RoomController;
 import app.daos.IRoomDAO;
 import app.daos.RoomDAO;
+import app.security.enums.Role;
 import io.javalin.apibuilder.EndpointGroup;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -20,11 +21,11 @@ public class RoomRoutes {
 
     public EndpointGroup getRoomRoutes() {
         return () -> {
-            post("/", roomController::createRoom);
-            get("/{id}", roomController::getRoomById);
-            get("/", roomController::getAllRooms);
-            put("/{id}", roomController::updateRoom);
-            delete("/{id}", roomController::deleteRoom);
+            post("/", roomController::createRoom, Role.ADMIN);
+            get("/{id}", roomController::getRoomById, Role.USER);
+            get("/", roomController::getAllRooms, Role.USER);
+            put("/{id}", roomController::updateRoom, Role.ADMIN);
+            delete("/{id}", roomController::deleteRoom, Role.ADMIN);
         };
     }
 }

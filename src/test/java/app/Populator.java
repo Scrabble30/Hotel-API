@@ -3,6 +3,9 @@ package app;
 import app.dtos.HotelDTO;
 import app.entities.Hotel;
 import app.entities.Room;
+import app.security.entities.Role;
+import app.security.entities.User;
+import dk.bugelhartmann.UserDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
@@ -16,24 +19,49 @@ public class Populator {
         this.emf = emf;
     }
 
-    public List<HotelDTO> populateHotels() {
-        List<Hotel> hotels = List.of(
-                Hotel.builder()
-                        .name("Azure Skies Resort")
-                        .address("Lollandsgade 4-40, 8000 Aarhus")
-                        .build(),
-                Hotel.builder()
-                        .name("Vista Hotel")
-                        .address("Plougslundvej, 7190 Billund")
-                        .build()
+    public List<UserDTO> populateUsers() {
+        List<User> users = List.of(
+                new User(
+                        "User",
+                        "user123"
+                ),
+                new User(
+                        "Admin",
+                        "admin123"
+                )
         );
+
+        List<Role> roles = List.of(
+                new Role(
+                        "user"
+                ),
+                new Role(
+                        "admin"
+                )
+        );
+
+        users.get(0).addRole(roles.get(0));
+        roles.get(0).addUser(users.get(0));
+
+        users.get(1).addRole(roles.get(1));
+        roles.get(1).addUser(users.get(1));
 
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
-            hotels.forEach(em::persist);
+            users.forEach(em::persist);
+            roles.forEach(em::persist);
             em.getTransaction().commit();
 
-            return hotels.stream().map(HotelDTO::new).toList();
+            return users.stream().map(user -> new UserDTO(user.getUsername(), user.getPassword(), user.getRolesAsStrings())).toList();
+        }
+    }
+
+    public void cleanUpUsers() {
+        try (EntityManager em = emf.createEntityManager()) {
+            em.getTransaction().begin();
+            em.createQuery("DELETE FROM User").executeUpdate();
+            em.createQuery("DELETE FROM Role").executeUpdate();
+            em.getTransaction().commit();
         }
     }
 

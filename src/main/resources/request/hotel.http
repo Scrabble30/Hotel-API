@@ -1,0 +1,29 @@
+### Create hotel
+POST {{URL}}/hotels
+Content-Type: application/json
+
+{
+  "name": "The Leaky Cauldron",
+  "address": "1 Cobourg St, London NW1 2HP, UK"
+}
+
+### Get hotel by id
+GET {{URL}}/hotels/45
+
+### Get hotel by id
+GET {{URL}}/hotels/43/rooms
+
+### Get all hotels
+GET {{URL}}/hotels
+
+### Update hotel
+PUT {{URL}}/hotels/47
+Content-Type: application/json
+
+{
+  "name": "New Vista Hotel",
+  "address": "Plougslundvej, 7190 Billund"
+}
+
+### Delete hotel
+DELETE {{URL}}/hotels/2
