@@ -47,6 +47,19 @@ class SecurityRoutesTest {
         AppConfig.stopServer(app);
     }
 
+    String loginAccount(String username, String password) {
+        UserDTO userDTO = new UserDTO(username, password);
+
+        return given()
+                .body(userDTO)
+                .when()
+                .post(BASE_URL + "/auth/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("token");
+    }
+
     @Test
     void test() {
         given()
@@ -82,5 +95,59 @@ class SecurityRoutesTest {
                 .statusCode(201)
                 .body("username", equalTo(userDTO.getUsername()))
                 .body("token", is(notNullValue()));
+    }
+
+    @Test
+    void protectedUser() {
+        String token = loginAccount("User1", "user123");
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get(BASE_URL + "/protected/user_demo")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void protectedUserUnauthorized() {
+        given()
+                .when()
+                .get(BASE_URL + "/protected/user_demo")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void protectedAdmin() {
+        String token = loginAccount("Admin1", "admin123");
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get(BASE_URL + "/protected/admin_demo")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void protectedUnauthorized() {
+        given()
+                .when()
+                .get(BASE_URL + "/protected/admin_demo")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    void protectedUnauthorizedUser() {
+        String token = loginAccount("User1", "user123");
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when()
+                .get(BASE_URL + "/protected/admin_demo")
+                .then()
+                .statusCode(401);
     }
 }
