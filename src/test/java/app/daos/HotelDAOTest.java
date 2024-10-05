@@ -58,25 +58,19 @@ class HotelDAOTest {
         );
 
         HotelDTO actual = hotelDAO.createHotel(expected);
-        List<RoomDTO> actualRooms = actual.getRooms().stream().toList();
 
-        expected.setId(actual.getId());
+        actual.getRooms().forEach(roomDTO -> {
+            Assertions.assertNotNull(roomDTO.getHotelId());
+            Assertions.assertNotNull(roomDTO.getId());
 
-        for (int i = 0; i < expectedRooms.size(); i++) {
-            RoomDTO expectedRoom = expectedRooms.get(i);
-            RoomDTO actualRoom = actualRooms.get(i);
+            roomDTO.setHotelId(null);
+            roomDTO.setId(null);
+        });
 
-            expectedRoom.setId(actualRoom.getId());
-            expectedRoom.setHotelId(actualRoom.getHotelId());
-        }
+        Assertions.assertNotNull(actual.getId());
+        actual.setId(null);
 
         Assertions.assertEquals(expected, actual);
-        Assertions.assertAll(
-                () -> Assertions.assertEquals(expected.getName(), actual.getName()),
-                () -> Assertions.assertEquals(expected.getAddress(), actual.getAddress())
-        );
-
-
     }
 
     @Test
