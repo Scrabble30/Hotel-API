@@ -5,6 +5,7 @@ import app.config.AppConfig;
 import app.config.HibernateConfig;
 import app.dtos.HotelDTO;
 import app.dtos.RoomDTO;
+import dk.bugelhartmann.UserDTO;
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
@@ -39,11 +40,13 @@ class RoomRoutesTest {
     void setUp() {
         hotelDTOList = populator.populateHotelsWithRooms();
         roomDTOList = hotelDTOList.stream().map(HotelDTO::getRooms).flatMap(Set::stream).toList();
+        populator.populateUsers();
     }
 
     @AfterEach
     void tearDown() {
         populator.cleanUpHotels();
+        populator.cleanUpUsers();
     }
 
     @AfterAll
@@ -51,8 +54,23 @@ class RoomRoutesTest {
         AppConfig.stopServer(app);
     }
 
+    String loginAccount(String username, String password) {
+        UserDTO userDTO = new UserDTO(username, password);
+
+        return given()
+                .body(userDTO)
+                .when()
+                .post(BASE_URL + "/auth/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("token");
+    }
+
     @Test
     void createRoom() {
+        String token = loginAccount("Admin1", "admin123");
+
         RoomDTO expected = new RoomDTO(
                 null,
                 hotelDTOList.get(1).getId(),
@@ -61,6 +79,7 @@ class RoomRoutesTest {
         );
 
         RoomDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .body(expected)
                 .when()
                 .post(BASE_URL + "/rooms")
@@ -76,9 +95,12 @@ class RoomRoutesTest {
 
     @Test
     void getRoomById() {
+        String token = loginAccount("User1", "user123");
+
         RoomDTO expected = roomDTOList.get(1);
 
         RoomDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/rooms/{id}", expected.getId())
                 .then()
@@ -91,9 +113,12 @@ class RoomRoutesTest {
 
     @Test
     void getAllRooms() {
+        String token = loginAccount("User1", "user123");
+
         List<RoomDTO> expected = roomDTOList;
 
         RoomDTO[] actual = given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/rooms")
                 .then()
@@ -107,6 +132,8 @@ class RoomRoutesTest {
 
     @Test
     void updateRoom() {
+        String token = loginAccount("Admin1", "admin123");
+
         RoomDTO roomDTO = roomDTOList.get(1);
         RoomDTO expected = new RoomDTO(
                 roomDTO.getId(),
@@ -116,6 +143,7 @@ class RoomRoutesTest {
         );
 
         RoomDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .body(expected)
                 .when()
                 .put(BASE_URL + "/rooms/{id}", expected.getId())
@@ -129,21 +157,26 @@ class RoomRoutesTest {
 
     @Test
     void deleteRoom() {
+        String token = loginAccount("Admin1", "admin123");
+
         RoomDTO roomDTO = roomDTOList.get(0);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/rooms/{id}", roomDTO.getId())
                 .then()
                 .statusCode(200);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .delete(BASE_URL + "/rooms/{id}", roomDTO.getId())
                 .then()
                 .statusCode(204);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/rooms/{id}", roomDTO.getId())
                 .then()

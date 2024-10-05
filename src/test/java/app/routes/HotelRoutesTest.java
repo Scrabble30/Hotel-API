@@ -27,7 +27,6 @@ class HotelRoutesTest {
     private static Javalin app;
 
     private List<HotelDTO> hotelDTOList;
-    private List<UserDTO> userDTOList;
 
     @BeforeAll
     static void beforeAll() {
@@ -40,7 +39,7 @@ class HotelRoutesTest {
     @BeforeEach
     void setUp() {
         hotelDTOList = populator.populateHotelsWithRooms();
-        userDTOList = populator.populateUsers();
+        populator.populateUsers();
     }
 
     @AfterEach
@@ -69,6 +68,8 @@ class HotelRoutesTest {
 
     @Test
     void createHotel() {
+        String token = loginAccount("Admin1", "admin123");
+
         HotelDTO expected = new HotelDTO(
                 null,
                 "Kelp Forest Suites",
@@ -76,6 +77,7 @@ class HotelRoutesTest {
         );
 
         HotelDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .body(expected)
                 .when()
                 .post(BASE_URL + "/hotels")
@@ -110,10 +112,13 @@ class HotelRoutesTest {
 
     @Test
     void getHotelRoomsById() {
+        String token = loginAccount("User1", "user123");
+
         HotelDTO expected = hotelDTOList.get(0);
         Set<RoomDTO> expectedRooms = expected.getRooms();
 
         RoomDTO[] actual = given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/hotels/{id}/rooms", expected.getId())
                 .then()
@@ -128,10 +133,13 @@ class HotelRoutesTest {
 
     @Test
     void getAllHotels() {
+        String token = loginAccount("User1", "user123");
+
         List<HotelDTO> expectedHotelDTOList = hotelDTOList;
         expectedHotelDTOList.forEach(hotelDTO -> hotelDTO.getRooms().clear());
 
         HotelDTO[] actual = given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/hotels")
                 .then()
@@ -146,6 +154,8 @@ class HotelRoutesTest {
 
     @Test
     void updateHotel() {
+        String token = loginAccount("Admin1", "admin123");
+
         HotelDTO hotelDTO = hotelDTOList.get(0);
         HotelDTO expected = new HotelDTO(
                 hotelDTO.getId(),
@@ -154,6 +164,7 @@ class HotelRoutesTest {
         );
 
         HotelDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .body(expected)
                 .when()
                 .put(BASE_URL + "/hotels/{id}", expected.getId())
@@ -167,21 +178,26 @@ class HotelRoutesTest {
 
     @Test
     void deleteHotel() {
+        String token = loginAccount("Admin1", "admin123");
+
         HotelDTO hotelDTO = hotelDTOList.get(0);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/hotels/{id}", hotelDTO.getId())
                 .then()
                 .statusCode(200);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .delete(BASE_URL + "/hotels/{id}", hotelDTO.getId())
                 .then()
                 .statusCode(204);
 
         given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/hotels/{id}", hotelDTO.getId())
                 .then()
