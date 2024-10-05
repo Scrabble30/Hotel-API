@@ -5,6 +5,7 @@ import app.config.AppConfig;
 import app.config.HibernateConfig;
 import app.dtos.HotelDTO;
 import app.dtos.RoomDTO;
+import dk.bugelhartmann.UserDTO;
 import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.*;
@@ -26,6 +27,7 @@ class HotelRoutesTest {
     private static Javalin app;
 
     private List<HotelDTO> hotelDTOList;
+    private List<UserDTO> userDTOList;
 
     @BeforeAll
     static void beforeAll() {
@@ -38,16 +40,31 @@ class HotelRoutesTest {
     @BeforeEach
     void setUp() {
         hotelDTOList = populator.populateHotelsWithRooms();
+        userDTOList = populator.populateUsers();
     }
 
     @AfterEach
     void tearDown() {
         populator.cleanUpHotels();
+        populator.cleanUpUsers();
     }
 
     @AfterAll
     static void afterAll() {
         AppConfig.stopServer(app);
+    }
+
+    String loginAccount(String username, String password) {
+        UserDTO userDTO = new UserDTO(username, password);
+
+        return given()
+                .body(userDTO)
+                .when()
+                .post(BASE_URL + "/auth/login")
+                .then()
+                .statusCode(200)
+                .extract()
+                .path("token");
     }
 
     @Test
@@ -74,10 +91,13 @@ class HotelRoutesTest {
 
     @Test
     void getHotelById() {
+        String token = loginAccount("User1", "user123");
+
         HotelDTO expected = hotelDTOList.get(0);
         expected.getRooms().clear();
 
         HotelDTO actual = given()
+                .header("Authorization", "Bearer " + token)
                 .when()
                 .get(BASE_URL + "/hotels/{id}", expected.getId())
                 .then()
