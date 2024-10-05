@@ -1,6 +1,7 @@
 package app.config;
 
 import app.controllers.ExceptionController;
+import app.dtos.HttpMessageDTO;
 import app.exceptions.APIException;
 import app.routes.Routes;
 import app.security.controllers.AccessController;
@@ -8,8 +9,12 @@ import app.security.routes.SecurityRoutes;
 import io.javalin.Javalin;
 import io.javalin.config.JavalinConfig;
 import jakarta.persistence.EntityManagerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionController.class);
 
     private static ExceptionController exceptionController;
     private static AccessController accessController;
@@ -30,6 +35,12 @@ public class AppConfig {
 
     public static void handleExceptions(Javalin app) {
         app.exception(APIException.class, exceptionController::handleAPIExceptions);
+        app.exception(Exception.class, (e, ctx) -> {
+            logger.error("{} {}", 400, e.getMessage());
+
+            ctx.status(400);
+            ctx.json(new HttpMessageDTO(400, e.getMessage()));
+        });
     }
 
     public static Javalin startServer(int port, EntityManagerFactory emf) {
