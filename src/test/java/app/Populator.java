@@ -43,6 +43,8 @@ public class Populator {
         users.get(0).addRole(roles.get(0));
         roles.get(0).addUser(users.get(0));
 
+        users.get(1).addRole(roles.get(0));
+        roles.get(0).addUser(users.get(1));
         users.get(1).addRole(roles.get(1));
         roles.get(1).addUser(users.get(1));
 
