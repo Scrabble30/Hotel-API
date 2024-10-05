@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class APIMessageDTO {
+public class HttpMessageDTO {
 
     private int status;
     private String message;

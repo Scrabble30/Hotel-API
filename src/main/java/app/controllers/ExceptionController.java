@@ -1,6 +1,6 @@
 package app.controllers;
 
-import app.dtos.APIMessageDTO;
+import app.dtos.HttpMessageDTO;
 import app.exceptions.APIException;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
@@ -14,6 +14,6 @@ public class ExceptionController {
         logger.error("{} {}", e.getStatusCode(), e.getMessage());
 
         ctx.status(e.getStatusCode());
-        ctx.json(new APIMessageDTO(e.getStatusCode(), e.getMessage()));
+        ctx.json(new HttpMessageDTO(e.getStatusCode(), e.getMessage()));
     }
 }
