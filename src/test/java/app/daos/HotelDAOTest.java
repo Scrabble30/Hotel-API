@@ -39,21 +39,17 @@ class HotelDAOTest {
 
     @Test
     void create() {
-        List<RoomDTO> expectedRooms = List.of(
-                new RoomDTO(
-                        null,
-                        null,
-                        1,
-                        165.0
-                )
-        );
-
         HotelDTO expected = new HotelDTO(
                 null,
                 "Kelp Forest Suites",
                 "Clausensvej, 6100 Haderslev",
                 Set.of(
-                        expectedRooms.get(0)
+                        new RoomDTO(
+                                null,
+                                null,
+                                1,
+                                165.0
+                        )
                 )
         );
 
