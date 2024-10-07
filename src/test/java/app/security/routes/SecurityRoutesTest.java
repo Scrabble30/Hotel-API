@@ -66,7 +66,8 @@ class SecurityRoutesTest {
                 .when()
                 .get(BASE_URL + "/auth/test")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("msg", equalTo("Hello from Open"));
     }
 
     @Test
@@ -106,7 +107,8 @@ class SecurityRoutesTest {
                 .when()
                 .get(BASE_URL + "/protected/user_demo")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("msg", equalTo("Hello from USER Protected"));
     }
 
     @Test
@@ -127,7 +129,8 @@ class SecurityRoutesTest {
                 .when()
                 .get(BASE_URL + "/protected/admin_demo")
                 .then()
-                .statusCode(200);
+                .statusCode(200)
+                .body("msg", equalTo("Hello from ADMIN Protected"));
     }
 
     @Test
