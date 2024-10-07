@@ -22,9 +22,9 @@ public class HotelRoutes {
     public EndpointGroup getHotelRoutes() {
         return () -> {
             post("/", hotelController::createHotel, Role.ADMIN);
-            get("/{id}", hotelController::getHotelById, Role.USER);
-            get("/{id}/rooms", hotelController::getHotelRoomsById, Role.USER);
-            get("/", hotelController::getAllHotels, Role.USER);
+            get("/{id}", hotelController::getHotelById, Role.ADMIN, Role.USER);
+            get("/{id}/rooms", hotelController::getHotelRoomsById, Role.ADMIN, Role.USER);
+            get("/", hotelController::getAllHotels, Role.ADMIN, Role.USER);
             put("/{id}", hotelController::updateHotel, Role.ADMIN);
             delete("/{id}", hotelController::deleteHotel, Role.ADMIN);
         };
